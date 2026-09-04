@@ -1,0 +1,21 @@
+{
+  "name": "cinema",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cinema seat reservation system",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @cinema/server",
+    "build": "npm run build -w @cinema/server",
+    "start": "npm run start -w @cinema/server",
+    "db:generate": "npm run db:generate -w @cinema/server",
+    "db:migrate": "npm run db:migrate -w @cinema/server",
+    "seed": "npm run seed -w @cinema/server",
+    "test": "npm run test -w @cinema/server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
