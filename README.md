@@ -13,9 +13,6 @@ ever double-booked and that seat selections obey the venue's seating rules.
 - **Structure:** npm workspaces (`packages/server` today; `packages/web` — a React
   frontend — will land alongside it later)
 
-Drizzle was chosen over Prisma specifically because the concurrency guarantee below
-depends on two SQL-level features Drizzle exposes natively: `SELECT ... FOR UPDATE` row
-locking and a **partial unique index** declared directly in the schema.
 
 ## Quickstart (Docker)
 
@@ -209,10 +206,6 @@ This is enforced at two layers:
    `409 Conflict`, but even if the lock were somehow bypassed, the index is the final
    backstop.
 
-This was verified against a live Postgres instance beyond the PRD's 2-way example: firing
-10 simultaneous `POST /reservations` requests at the same seat produced exactly one `201`
-and nine `409`s, with the database left holding exactly one active hold on that seat.
-
 ## Expiry model
 
 Reservations expire 15 minutes after creation if not completed. To avoid every request
@@ -264,36 +257,9 @@ See [`docs/ERD.md`](docs/ERD.md) for the full entity-relationship diagram.
 - **reservation_seats** — join table between reservations and seats; `active` is the
   column the partial unique index guards
 
-## Project layout
-
-```
-cinema/
-├─ package.json               # workspaces root; delegates scripts to @cinema/server
-├─ docker-compose.yml
-├─ README.md
-├─ docs/ERD.md
-└─ packages/
-   └─ server/
-      ├─ Dockerfile
-      ├─ docker-entrypoint.sh  # migrate → seed → start (forwards --mode= flags)
-      ├─ .env.example
-      ├─ src/
-      │  ├─ index.ts          # bootstrap: run mode (server/sweep/server-with-sweep), start
-      │  ├─ app.ts            # express app factory (no listen — supertest-ready)
-      │  ├─ config/env.ts
-      │  ├─ db/               # schema, client, migrations, seed, clean
-      │  ├─ middleware/       # authGuard, errorHandler, asyncHandler, requestLogger
-      │  ├─ routes/           # auth, seats, reservations
-      │  ├─ services/         # authService, seatService, reservationService
-      │  ├─ domain/           # layout.ts, seating.ts — pure, DB-free logic
-      │  └─ types/
-      └─ test/                # node:test unit tests for domain/seating.ts
-```
 
 ## Testing
 
-Pure seating-rule logic (`domain/seating.ts`) is unit-tested with Node's built-in test
-runner:
 
 ```bash
 npm test
