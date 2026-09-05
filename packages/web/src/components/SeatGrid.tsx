@@ -8,10 +8,13 @@ interface SeatGridProps {
   onToggle: (seatId: string) => void;
 }
 
+// Displayed screen-first: K, L, M closest to the screen, then J down to A at the back.
+const DISPLAY_ROWS = [...ROWS].reverse();
+
 export function SeatGrid({ seatDisplayMap, onToggle }: SeatGridProps) {
   return (
     <div className={styles.grid}>
-      {ROWS.map((row) => (
+      {DISPLAY_ROWS.map((row) => (
         <div key={row.label} className={styles.row}>
           <span className={styles.rowLabel}>{row.label}</span>
           <div className={styles.seats}>
