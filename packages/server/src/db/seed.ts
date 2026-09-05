@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { db, pool } from './client';
 import { seats, users } from './schema';
-import { getAllSeatIds } from '../domain/layout';
+import { getAllSeatIds } from '@cinema/shared';
 
 const DEMO_PASSWORD = 'password123';
 const DEMO_USERNAMES = ['alice', 'bob', 'carol'];

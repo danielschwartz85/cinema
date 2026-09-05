@@ -22,8 +22,8 @@ export const users = pgTable('users', {
 
 /**
  * Static seat catalog. Deliberately just an id (e.g. "A-5") — row label,
- * seat number, and row size are all derived from `domain/layout.ts`, not
- * stored here.
+ * seat number, and row size are all derived from `@cinema/shared`'s
+ * `layout.ts`, not stored here.
  */
 export const seats = pgTable('seats', {
   id: text('id').primaryKey(),

@@ -2,9 +2,9 @@ import { and, eq, inArray, lt } from 'drizzle-orm';
 import { db } from '../db/client';
 import type { Db } from '../db/client';
 import { reservationSeats, reservations, seats } from '../db/schema';
-import { getRowSeatIds, parseSeatId } from '../domain/layout';
-import type { ParsedSeat } from '../domain/layout';
-import { checkRule1, checkRule2 } from '../domain/seating';
+import { getRowSeatIds, parseSeatId } from '@cinema/shared';
+import type { ParsedSeat } from '@cinema/shared';
+import { checkRule1, checkRule2 } from '@cinema/shared';
 import { AppError } from '../types/AppError';
 import { env } from '../config/env';
 

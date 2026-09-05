@@ -1,0 +1,15 @@
+{
+  // Second build target, alongside tsconfig.json's CommonJS output: emits real
+  // ESM (dist/esm) so bundlers (Vite/Rollup, building @cinema/web) get native
+  // `export {}` syntax instead of TS's CJS re-export getters, which Rollup's
+  // CJS interop can't always statically resolve to named exports. Node/tsx
+  // (server, tests) keep using the CommonJS build via the "require" condition.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "outDir": "dist/esm",
+    "declaration": false,
+    "sourceMap": false
+  }
+}

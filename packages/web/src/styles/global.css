@@ -1,0 +1,36 @@
+:root {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-alt: #273449;
+  --color-border: #334155;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-accent: #3b82f6;
+  --color-danger: #ef4444;
+
+  --seat-available: #22c55e;
+  --seat-isolated: #64748b;
+  --seat-selected: #3b82f6;
+  --seat-mine-reserved: #f59e0b;
+  --seat-mine-booked: #14b8a6;
+  --seat-reserved: #ef4444;
+  --seat-booked: #7f1d1d;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+button {
+  font-family: inherit;
+}

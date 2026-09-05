@@ -5,7 +5,11 @@ WORKDIR /app
 
 COPY package.json package-lock.json* ./
 COPY packages/server/package.json packages/server/package.json
+COPY packages/shared/package.json packages/shared/package.json
 RUN npm ci
+
+COPY packages/shared ./packages/shared
+RUN npm run build -w @cinema/shared
 
 COPY packages/server ./packages/server
 RUN npm run build -w @cinema/server
@@ -17,6 +21,7 @@ ENV NODE_ENV=production
 
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/packages/shared ./packages/shared
 COPY --from=build /app/packages/server ./packages/server
 
 WORKDIR /app/packages/server

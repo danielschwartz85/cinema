@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db/client';
 import { reservationSeats, reservations, seats } from '../db/schema';
-import { getAllSeatIds } from '../domain/layout';
+import { getAllSeatIds } from '@cinema/shared';
 
 export type SeatState = 'available' | 'reserved' | 'booked';
 

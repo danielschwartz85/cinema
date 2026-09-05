@@ -14,4 +14,9 @@ export const env = {
   RESERVATION_TTL_MINUTES: Number(process.env.RESERVATION_TTL_MINUTES ?? 15),
   /** How often the background sweeper marks expired holds EXPIRED. */
   SWEEP_INTERVAL_MS: Number(process.env.SWEEP_INTERVAL_MS ?? 60_000),
+  /** Comma-separated list of origins allowed to call the API from a browser. */
+  CORS_ORIGIN: (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 };

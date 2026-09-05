@@ -30,8 +30,21 @@ services:
       PORT: 3000
       RESERVATION_TTL_MINUTES: 15
       SWEEP_INTERVAL_MS: 60000
+      CORS_ORIGIN: http://localhost:5173,http://localhost:8080
     ports:
       - '3000:3000'
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - '8080:80'
 
 volumes:
   db_data:

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSeatId } from '../../src/domain/layout';
-import { checkRule1, checkRule2 } from '../../src/domain/seating';
+import { parseSeatId } from '../src/layout';
+import { checkRule1, checkRule2 } from '../src/seating';
 
 function seats(row: string, numbers: number[]) {
   return numbers.map((n) => parseSeatId(`${row}-${n}`)!);

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import { createReservationRequestSchema, reservationIdParamsSchema } from '@cinema/shared';
 import { authGuard } from '../middleware/authGuard';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { AppError } from '../types/AppError';
@@ -13,17 +13,6 @@ export const reservationsRouter = Router();
 
 reservationsRouter.use(authGuard);
 
-// Shape-only validation. Deeper seat semantics (valid row/number per the
-// layout, Rule 1) stay in reservationService — that's business logic, not
-// request-shape validation.
-const createReservationSchema = z.object({
-  seatIds: z.array(z.string().min(1)).min(1, 'seatIds must be a non-empty array of seat ids.'),
-});
-
-const reservationIdParamsSchema = z.object({
-  id: z.string().uuid('Reservation id must be a valid UUID.'),
-});
-
 reservationsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -35,7 +24,7 @@ reservationsRouter.get(
 reservationsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    const parsed = createReservationSchema.safeParse(req.body);
+    const parsed = createReservationRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       throw AppError.badRequest(parsed.error.issues[0]?.message ?? 'Invalid request body.');
     }

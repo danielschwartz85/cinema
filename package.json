@@ -7,13 +7,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @cinema/server",
-    "build": "npm run build -w @cinema/server",
+    "build:shared": "npm run build -w @cinema/shared",
+    "dev": "npm run build:shared && npm run dev -w @cinema/server",
+    "dev:web": "npm run build:shared && npm run dev -w @cinema/web",
+    "build": "npm run build:shared && npm run build -w @cinema/server",
+    "build:web": "npm run build:shared && npm run build -w @cinema/web",
     "start": "npm run start -w @cinema/server",
     "db:generate": "npm run db:generate -w @cinema/server",
     "db:migrate": "npm run db:migrate -w @cinema/server",
     "seed": "npm run seed -w @cinema/server",
-    "test": "npm run test -w @cinema/server"
+    "test": "npm run test -w @cinema/shared && npm run test -w @cinema/server"
   },
   "keywords": [],
   "author": "",

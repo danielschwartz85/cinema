@@ -1,6 +1,6 @@
 # Cinema Reservation System
 
-A backend service for reserving cinema seats: authenticated users can view a 115-seat
+A full-stack app for reserving cinema seats: authenticated users can view a 115-seat
 layout, place a temporary hold on a set of seats, and complete the reservation to book
 them permanently. Built to guarantee — even under concurrent requests — that no seat is
 ever double-booked and that seat selections obey the venue's seating rules.
@@ -8,11 +8,13 @@ ever double-booked and that seat selections obey the venue's seating rules.
 ## Stack
 
 - **Backend:** Node.js + TypeScript, Express
+- **Frontend:** React + TypeScript (Vite), no Redux — local component state + hooks
+- **Shared:** `@cinema/shared` — the seating domain rules and layout, plus the API's
+  request (zod) schemas and response types, used by both backend and frontend so
+  validation and wire types can never drift between them
 - **Database:** PostgreSQL (via [Drizzle ORM](https://orm.drizzle.team/))
 - **Infra:** Docker / Docker Compose
-- **Structure:** npm workspaces (`packages/server` today; `packages/web` — a React
-  frontend — will land alongside it later)
-
+- **Structure:** npm workspaces — `packages/shared`, `packages/server`, `packages/web`
 
 ## Quickstart (Docker)
 
@@ -20,11 +22,15 @@ ever double-booked and that seat selections obey the venue's seating rules.
 docker compose up --build
 ```
 
-This starts Postgres, waits for it to be healthy, then builds and runs the server, which
-on boot runs migrations, seeds the database, and starts listening. The API is then
-available at `http://localhost:3000`.
+This starts Postgres, waits for it to be healthy, builds `@cinema/shared`, then builds
+and runs the API (migrate → seed → start on boot) and the web frontend (a static build
+served by nginx). Once it's up:
 
-Seeded demo users (see [`seed.ts`](packages/server/src/db/seed.ts)):
+- **Frontend:** `http://localhost:8080`
+- **API:** `http://localhost:3000`
+
+Seeded demo users (see [`seed.ts`](packages/server/src/db/seed.ts)) — log in with any of
+these on the frontend, or use them against the API directly:
 
 | username | password       |
 |----------|----------------|
@@ -34,21 +40,34 @@ Seeded demo users (see [`seed.ts`](packages/server/src/db/seed.ts)):
 
 ## Running locally (without Docker)
 
+Backend + database:
+
 ```bash
 npm install
 docker compose up -d db          # just the database
 cp packages/server/.env.example packages/server/.env
 npm run db:migrate
 npm run seed
-npm run dev                       # tsx watch, auto-restarts on change
+npm run dev                       # builds @cinema/shared, then tsx watch (API on :3000)
 ```
+
+Frontend, in a second terminal:
+
+```bash
+cp packages/web/.env.example packages/web/.env   # VITE_API_URL, defaults to :3000
+npm run dev:web                                   # Vite dev server on :5173
+```
+
+Open `http://localhost:5173` and log in with one of the seeded users above. The API's
+`CORS_ORIGIN` (see below) must include `http://localhost:5173` for the browser to be
+allowed to call it — it does by default.
 
 To wipe all data (users, seats, reservations) without dropping the schema — e.g. to
 start over with a clean slate — run `npm run db:clean`, then `npm run seed` again.
 
 ## Environment variables
 
-Set in `packages/server/.env` (see `.env.example`):
+**Server** — set in `packages/server/.env` (see `.env.example`):
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -58,13 +77,21 @@ Set in `packages/server/.env` (see `.env.example`):
 | `RESERVATION_TTL_MINUTES` | `15` | How long a hold stays `ACTIVE` before it's eligible for expiry |
 | `SWEEP_INTERVAL_MS` | `60000` | How often the background sweeper reconciles expired holds |
 | `RUN_MODE` | `server-with-sweep` | Which process(es) to start — see [Run modes](#run-modes) below. Overridden by `--mode=` |
+| `CORS_ORIGIN` | `http://localhost:5173` | Comma-separated list of browser origins allowed to call the API |
+
+**Web** — set in `packages/web/.env` (see `.env.example`):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `VITE_API_URL` | `http://localhost:3000` | Base URL of the API. Baked into the bundle at build time (Vite inlines `VITE_`-prefixed vars) |
+| `VITE_POLL_INTERVAL_MS` | `15000` | How often (ms) the seat map and reservation list re-poll the API |
 
 ## Cinema layout
 
 10 rows (`A`–`J`) of 10 seats + 3 rows (`K`–`M`) of 5 seats = **115 seats**. Seats are
 addressed by id, e.g. `A-5`. The layout (rows, sizes, valid ids) is defined entirely in
-code — [`domain/layout.ts`](packages/server/src/domain/layout.ts) — the `seats` table
-only stores the opaque id.
+code — [`layout.ts`](packages/shared/src/layout.ts) in `@cinema/shared` — the `seats`
+table only stores the opaque id.
 
 ## Seat states
 
@@ -260,10 +287,14 @@ See [`docs/ERD.md`](docs/ERD.md) for the full entity-relationship diagram.
 
 ## Testing
 
-
 ```bash
 npm test
 ```
+
+Runs `@cinema/shared`'s tests (`domain/seating.ts`'s Rule 1/Rule 2 logic — the only
+logic unit-tested today) followed by `@cinema/server`'s. Both the backend and the
+frontend import these same rule functions from `@cinema/shared`, so this is the single
+place that validation logic is verified.
 
 Integration coverage (supertest driving the `app.ts` factory against a real or mocked
 Postgres) is planned as a future addition, per the PRD.
